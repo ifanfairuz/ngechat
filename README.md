@@ -107,7 +107,11 @@ AUTH0_CLIENT_SECRET='{yourClientSecret}'
 
 #### Setup Database
 
-Support memory storage with null configuration or use [MongoDB](https://www.mongodb.com).
+This project using [rxdb]() with supported storage :
+
+- Memory storage with null configuration.
+- [MongoDB](https://www.mongodb.com).
+- [FoundationDB](https://www.foundationdb.org).
 
 #### using MongoDB
 
@@ -117,6 +121,18 @@ Add some configuration into env file
 DB_DRIVER=mongodb
 # your connection string
 DB_CONNECTION='mongodb://127.0.0.1:27017'
+```
+
+#### using FoundationDB
+
+Add some configuration into env file
+
+```env
+DB_DRIVER=foundationdb
+
+#optional configuration
+DB_CLUSTERFILE=path/to/file.cluster
+DB_APIVERSION=710
 ```
 
 ### Build and Run
