@@ -22,8 +22,6 @@ interface DBCollections {
   chats: RxCollection<ChatDB>;
 }
 
-let db: RxDatabase<DBCollections>;
-
 const personSchema: RxJsonSchema<Person> = {
   version: 0,
   primaryKey: "id",
@@ -105,13 +103,11 @@ const getStorage = () => {
 };
 
 export const init = async () => {
-  if (!db) {
-    db = await createRxDatabase<DBCollections>({
-      name: "chat-db",
-      storage: getStorage(),
-      ignoreDuplicate: true,
-    });
-  }
+  const db = await createRxDatabase<DBCollections>({
+    name: "chat-db",
+    storage: getStorage(),
+    ignoreDuplicate: true,
+  });
 
   if (!db.collections.persons) {
     await db.addCollections({
