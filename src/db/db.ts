@@ -1,6 +1,5 @@
 import {
   RxCollection,
-  RxDatabase,
   RxJsonSchema,
   addRxPlugin,
   createRxDatabase,
@@ -11,7 +10,6 @@ import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 import { RxDBUpdatePlugin } from "rxdb/plugins/update";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageFoundationDB } from "rxdb/plugins/storage-foundationdb";
-import { setAPIVersion } from "foundationdb";
 
 addRxPlugin(RxDBMigrationPlugin);
 addRxPlugin(RxDBQueryBuilderPlugin);
@@ -80,7 +78,7 @@ const chatSchema: RxJsonSchema<
   required: ["id", "to", "from", "text", "date", "status"],
 };
 
-const getStorage = () => {
+const getStorage = async () => {
   const driver = process.env.DB_DRIVER || "memory";
   switch (driver) {
     case "mongodb":
@@ -89,6 +87,7 @@ const getStorage = () => {
       });
 
     case "foundationdb":
+      const { setAPIVersion } = await import("foundationdb");
       const apiVersion = parseInt(process.env.DB_APIVERSION || "620");
       setAPIVersion(apiVersion);
       return getRxStorageFoundationDB({
@@ -105,7 +104,7 @@ const getStorage = () => {
 export const init = async () => {
   const db = await createRxDatabase<DBCollections>({
     name: "chat-db",
-    storage: getStorage(),
+    storage: await getStorage(),
     ignoreDuplicate: true,
   });
 
