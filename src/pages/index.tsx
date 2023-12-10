@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { Search } from "@/components/Search";
 import { ChatBox } from "@/components/ChatBox";
@@ -19,10 +19,6 @@ const Person = dynamic(
 
 interface HomeProps {
   user: Auth0User;
-  datas: {
-    chats: Chats;
-    interlocutors: Persons;
-  };
 }
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
@@ -39,19 +35,16 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
     };
   }
 
-  const datas = await getAllChat(session.user);
   return {
-    props: { user: session.user, datas },
+    props: { user: session.user },
   };
 };
 
-export default function Home({ user, datas }: HomeProps) {
+export default function Home({ user }: HomeProps) {
   const chatBox = useRef<ChatBoxElement>(null);
   const [search, setSearch] = useState("");
-  const [interlocutors, setInterlocutors] = useState<Persons>(
-    datas.interlocutors
-  );
-  const [chats, setChats] = useState<Chats>(datas.chats);
+  const [interlocutors, setInterlocutors] = useState<Persons>({});
+  const [chats, setChats] = useState<Chats>({});
   const [typings, setTypings] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState("");
   const [modalAdd, setModalAdd] = useState(false);
@@ -234,6 +227,15 @@ export default function Home({ user, datas }: HomeProps) {
 
   const hideLeftPanel = () =>
     document.querySelector(".leftpanel")?.classList.remove("show");
+
+  useEffect(() => {
+    fetch(link("/api/data/chat-all"))
+      .then((res) => res.json())
+      .then(({ chats, interlocutors }) => {
+        setChats(chats);
+        setInterlocutors(interlocutors);
+      });
+  }, []);
 
   return (
     <div className="m-auto max-w-5xl h-screen md:h-[90vh] min-h-[700px] w-full bg-white md:rounded-3xl shadow-xl overflow-hidden">
