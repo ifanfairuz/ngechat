@@ -91,7 +91,7 @@ const getStorage = () => {
       });
 
     case "foundationdb":
-      const apiVersion = 620;
+      const apiVersion = parseInt(process.env.DB_APIVERSION || "620");
       setAPIVersion(apiVersion);
       return getRxStorageFoundationDB({
         apiVersion: apiVersion,
