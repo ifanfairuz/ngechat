@@ -9,7 +9,7 @@ function padLeft(number: number, count: number, text: string = "0"): string {
 }
 
 function toDate(date: Date | number | string) {
-  return typeof date === "string" && typeof date == "number"
+  return typeof date === "string" || typeof date == "number"
     ? new Date(date)
     : (date as Date);
 }
