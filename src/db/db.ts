@@ -1,5 +1,6 @@
 import {
   RxCollection,
+  RxDatabase,
   RxJsonSchema,
   addRxPlugin,
   createRxDatabase,
@@ -101,27 +102,32 @@ const getStorage = async () => {
   }
 };
 
-export const init = async () => {
-  const db = await createRxDatabase<DBCollections>({
+let db: Promise<RxDatabase<DBCollections>> | null = null;
+const create = async () => {
+  const database = await createRxDatabase<DBCollections>({
     name: "chat-db",
     storage: await getStorage(),
     ignoreDuplicate: true,
+    multiInstance: true,
   });
 
-  if (!db.collections.persons) {
-    await db.addCollections({
-      persons: {
-        schema: personSchema,
-      },
-    });
-  }
+  await database.addCollections({
+    persons: {
+      schema: personSchema,
+    },
+  });
 
-  if (!db.collections.chats) {
-    await db.addCollections({
-      chats: {
-        schema: chatSchema,
-      },
-    });
+  await database.addCollections({
+    chats: {
+      schema: chatSchema,
+    },
+  });
+
+  return database;
+};
+export const init = async () => {
+  if (!db) {
+    db = create();
   }
 
   return db;
