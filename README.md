@@ -123,18 +123,6 @@ DB_DRIVER=mongodb
 DB_CONNECTION='mongodb://127.0.0.1:27017'
 ```
 
-#### using FoundationDB
-
-Add some configuration into env file
-
-```env
-DB_DRIVER=foundationdb
-
-#optional configuration
-DB_CLUSTERFILE=path/to/file.cluster
-DB_APIVERSION=710
-```
-
 ### Build and Run
 
 ```bash
