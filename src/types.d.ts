@@ -17,7 +17,7 @@ declare global {
     id: string;
     name: string;
     imageUri: string;
-    lastSeen?: number;
+    lastSeen?: string;
     isOnline: boolean;
   }
 
@@ -32,7 +32,7 @@ declare global {
     to: Person;
     from: Person;
     text: string;
-    date: number;
+    date: string;
     status: ChatStatus;
   }
 

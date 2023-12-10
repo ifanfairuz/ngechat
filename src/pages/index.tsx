@@ -65,10 +65,14 @@ export default function Home({ user, datas }: HomeProps) {
     return filtered.sort((a, b) => {
       const chatsa = chats[a.id] || [];
       const timea =
-        chatsa.length > 0 ? chatsa[chatsa.length - 1].date : Number.MAX_VALUE;
+        chatsa.length > 0
+          ? new Date(chatsa[chatsa.length - 1].date).getTime()
+          : Number.MAX_VALUE;
       const chatsb = chats[b.id] || [];
       const timeb =
-        chatsb.length > 0 ? chatsb[chatsb.length - 1].date : Number.MAX_VALUE;
+        chatsb.length > 0
+          ? new Date(chatsb[chatsb.length - 1].date).getTime()
+          : Number.MAX_VALUE;
       return timeb - timea;
     });
   }, [search, chats, interlocutors]);
@@ -209,7 +213,7 @@ export default function Home({ user, datas }: HomeProps) {
       to: interlocutor,
       from: authToPerson(user!),
       text,
-      date: Date.now(),
+      date: new Date(Date.now()).toISOString(),
       status: "send",
     };
     pushChat(data);

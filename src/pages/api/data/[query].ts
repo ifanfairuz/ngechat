@@ -50,7 +50,7 @@ async function personAll(req: NextApiRequestWithSession, res: NextApiResponse) {
       name: d.name,
       imageUri: d.picture,
       lastSeen:
-        personDB?.lastSeen ?? new Date(d.last_login.toString()).getTime(),
+        personDB?.lastSeen ?? new Date(d.last_login.toString()).toISOString(),
       isOnline: personDB?.isOnline ?? false,
     } as Person;
 

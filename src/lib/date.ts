@@ -8,12 +8,14 @@ function padLeft(number: number, count: number, text: string = "0"): string {
   return text.repeat(count - number.toString().length) + number;
 }
 
-function toDate(date: Date | number) {
-  return typeof date == "number" ? new Date(date) : date;
+function toDate(date: Date | number | string) {
+  return typeof date === "string" && typeof date == "number"
+    ? new Date(date)
+    : (date as Date);
 }
 
 export function dateToAgo(
-  date: Date | number,
+  date: Date | number | string,
   withHour: boolean = false
 ): string {
   const now = new Date();
@@ -37,19 +39,23 @@ export function dateToAgo(
   )}/${dd.getFullYear()}`;
 }
 
-export function formatTime(date: Date | number): string {
+export function formatTime(date: Date | number | string): string {
   const d = toDate(date);
   return `${padLeft(d.getHours(), 2)}:${padLeft(d.getMinutes(), 2)}`;
 }
 
-export function isSameDay(date1: Date | number, date2: Date | number) {
+export function isSameDay(
+  date1: Date | number | string,
+  date2: Date | number | string
+) {
   const d1 = toDate(date1);
   const d2 = toDate(date2);
   return d1.getDate() == d2.getDate();
 }
 
-export function lastSeen(time: number): string {
-  let diff = Date.now() - time;
+export function lastSeen(time: number | string | Date): string {
+  let t = toDate(time).getTime();
+  let diff = Date.now() - t;
   let str = "last seen ";
 
   if (diff > ONE_DAY) {

@@ -75,7 +75,7 @@ export const createServer = async (server: SocketServer) => {
         io.leave(room);
         io.removeAllListeners();
         if ((await socket.in(room).fetchSockets()).length == 0) {
-          const lastSeen = Date.now();
+          const lastSeen = new Date(Date.now()).toISOString();
           persons.setOnline(person.id, false, lastSeen);
           io.broadcast.emit("status-online", {
             id: person.id,

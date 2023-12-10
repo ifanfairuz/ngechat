@@ -1,7 +1,7 @@
 interface StatusOnlinePayload {
   id: string;
   isOnline: boolean;
-  lastSeen?: number;
+  lastSeen?: string;
 }
 interface WithMessageData {
   data: Chat;
