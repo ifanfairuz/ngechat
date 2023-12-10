@@ -11,6 +11,7 @@ import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 import { RxDBUpdatePlugin } from "rxdb/plugins/update";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageFoundationDB } from "rxdb/plugins/storage-foundationdb";
+import { setAPIVersion } from "foundationdb";
 
 addRxPlugin(RxDBMigrationPlugin);
 addRxPlugin(RxDBQueryBuilderPlugin);
@@ -90,8 +91,10 @@ const getStorage = () => {
       });
 
     case "foundationdb":
+      const apiVersion = 620;
+      setAPIVersion(apiVersion);
       return getRxStorageFoundationDB({
-        apiVersion: 620,
+        apiVersion: apiVersion,
         clusterFile: process.env.DB_CLUSTERFILE,
         batchSize: parseInt(process.env.DB_BATCHSIZE || "50"),
       });
