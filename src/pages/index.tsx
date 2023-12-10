@@ -1,18 +1,28 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ulid } from "ulid";
+import { useMemo, useRef, useState } from "react";
+import { GetServerSideProps } from "next";
+import dynamic from "next/dynamic";
 import { Header } from "@/components/Header";
 import { Search } from "@/components/Search";
-import { Person } from "@/components/Person";
 import { ChatBox } from "@/components/ChatBox";
 import { useSocket } from "@/context/SocketContext";
 import { getSession } from "@/lib/session";
 import { authToPerson, getInterlocutorIdChat } from "@/lib/data";
 import { ModalNewChat } from "@/components/ModalNewChat";
-import { ulid } from "ulid";
-import { GetServerSideProps } from "next";
 import { link } from "@/lib/link";
+import { getAllChat } from "@/db/chats";
+
+const Person = dynamic(
+  () => import("@/components/Person").then(({ Person }) => Person),
+  { ssr: false }
+);
 
 interface HomeProps {
   user: Auth0User;
+  datas: {
+    chats: Chats;
+    interlocutors: Persons;
+  };
 }
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
@@ -29,16 +39,19 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
     };
   }
 
+  const datas = await getAllChat(session.user);
   return {
-    props: { user: session.user },
+    props: { user: session.user, datas },
   };
 };
 
-export default function Home({ user }: HomeProps) {
+export default function Home({ user, datas }: HomeProps) {
   const chatBox = useRef<ChatBoxElement>(null);
   const [search, setSearch] = useState("");
-  const [interlocutors, setInterlocutors] = useState<Persons>({});
-  const [chats, setChats] = useState<Chats>({});
+  const [interlocutors, setInterlocutors] = useState<Persons>(
+    datas.interlocutors
+  );
+  const [chats, setChats] = useState<Chats>(datas.chats);
   const [typings, setTypings] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState("");
   const [modalAdd, setModalAdd] = useState(false);
@@ -221,15 +234,6 @@ export default function Home({ user }: HomeProps) {
 
   const hideLeftPanel = () =>
     document.querySelector(".leftpanel")?.classList.remove("show");
-
-  useEffect(() => {
-    fetch(link("/api/data/chat-all"))
-      .then((res) => res.json())
-      .then(({ chats, interlocutors }) => {
-        setChats(chats);
-        setInterlocutors(interlocutors);
-      });
-  }, []);
 
   return (
     <div className="m-auto max-w-5xl h-screen md:h-[90vh] min-h-[700px] w-full bg-white md:rounded-3xl shadow-xl overflow-hidden">
