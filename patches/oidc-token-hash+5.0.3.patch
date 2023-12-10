@@ -1,0 +1,13 @@
+diff --git a/node_modules/oidc-token-hash/lib/shake256.js b/node_modules/oidc-token-hash/lib/shake256.js
+index 0cd2438..090bed1 100644
+--- a/node_modules/oidc-token-hash/lib/shake256.js
++++ b/node_modules/oidc-token-hash/lib/shake256.js
+@@ -1,7 +1,5 @@
+ const crypto = require('crypto');
+ 
+-const [major, minor] = process.version.substring(1).split('.').map((x) => parseInt(x, 10));
+-const xofOutputLength = major > 12 || (major === 12 && minor >= 8);
+-const shake256 = xofOutputLength && crypto.getHashes().includes('shake256');
++const shake256 = crypto.getHashes().includes('shake256');
+ 
+ module.exports = shake256;
