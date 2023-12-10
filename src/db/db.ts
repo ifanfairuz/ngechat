@@ -10,6 +10,7 @@ import { RxDBMigrationPlugin } from "rxdb/plugins/migration";
 import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 import { RxDBUpdatePlugin } from "rxdb/plugins/update";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
+import { getRxStorageFoundationDB } from "rxdb/plugins/storage-foundationdb";
 
 addRxPlugin(RxDBMigrationPlugin);
 addRxPlugin(RxDBQueryBuilderPlugin);
@@ -82,13 +83,22 @@ const chatSchema: RxJsonSchema<
 
 const getStorage = () => {
   const driver = process.env.DB_DRIVER || "memory";
-  if (driver == "mongodb") {
-    return getRxStorageMongoDB({
-      connection: process.env.DB_CONNECTION || "mongodb://localhost:27017",
-    });
-  }
+  switch (driver) {
+    case "mongodb":
+      return getRxStorageMongoDB({
+        connection: process.env.DB_CONNECTION || "mongodb://localhost:27017",
+      });
 
-  return getRxStorageMemory();
+    case "foundationdb":
+      return getRxStorageFoundationDB({
+        apiVersion: 620,
+        clusterFile: process.env.DB_CLUSTERFILE,
+        batchSize: parseInt(process.env.DB_BATCHSIZE || "50"),
+      });
+
+    default:
+      return getRxStorageMemory();
+  }
 };
 
 export const init = async () => {

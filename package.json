@@ -11,8 +11,9 @@
     "deploy": "next build && pm2 start ecosystem.config.js"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^3.3.0",
+    "@auth0/nextjs-auth0": "^3.5.0",
     "auth0": "^4.1.0",
+    "foundationdb": "^2.0.1",
     "next": "14.0.3",
     "patch-package": "^8.0.0",
     "react": "^18",
