@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { Search } from "@/components/Search";
-import { Person } from "@/components/Person";
 import { ChatBox } from "@/components/ChatBox";
 import { useSocket } from "@/context/SocketContext";
 import { getSession } from "@/lib/session";
@@ -11,6 +10,12 @@ import { ulid } from "ulid";
 import { GetServerSideProps } from "next";
 import { link } from "@/lib/link";
 import { getAllChat } from "@/db/chats";
+import dynamic from "next/dynamic";
+
+const Person = dynamic(
+  () => import("@/components/Person").then(({ Person }) => Person),
+  { ssr: false }
+);
 
 interface HomeProps {
   user: Auth0User;
