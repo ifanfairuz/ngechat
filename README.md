@@ -107,7 +107,7 @@ AUTH0_CLIENT_SECRET='{yourClientSecret}'
 
 #### Setup Database
 
-This project using [rxdb]() with supported storage :
+This project using [rxdb](https://rxdb.info) with supported storage :
 
 - Memory storage with null configuration.
 - [MongoDB](https://www.mongodb.com).
