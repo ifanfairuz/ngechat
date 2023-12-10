@@ -29,8 +29,12 @@ export const ModalNewChat = memo(
           return 0;
         }
 
-        const timea = a.lastSeen || Number.MIN_VALUE;
-        const timeb = b.lastSeen || Number.MIN_VALUE;
+        const timea = a.lastSeen
+          ? new Date(a.lastSeen).getTime()
+          : Number.MIN_VALUE;
+        const timeb = b.lastSeen
+          ? new Date(b.lastSeen).getTime()
+          : Number.MIN_VALUE;
         return timeb - timea;
       });
     }, [persons, modalSearch]);
