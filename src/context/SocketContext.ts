@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 import { client } from "@/lib/socket-client";
 
 interface SocketContextType {
-  user?: Auth0User;
+  user?: Person;
   io?: Socket<SocketEventMap>;
   handleStatusOnline?: SocketEventMap["status-online"];
   handleSomeoneTyping?: SocketEventMap["typings"];
@@ -17,7 +17,7 @@ interface SocketContextType {
   sendMessage: SocketEventMap["send-message"];
   changeStatusMessage: SocketEventMap["status-message"];
   readAllMessages: SocketEventMap["read-all-messages"];
-  connect: (user: Auth0User) => () => void;
+  connect: (user: Person) => () => void;
 }
 
 interface SocketContextListener {
@@ -45,7 +45,7 @@ const SocketContext = createContext<SocketContextType>({
   onReceiveMessage(handler) {
     this.handleReceiveMessage = (data) => {
       const interlocutor =
-        this.user?.email == data.data.from.id
+        this.user?.id == data.data.from.id
           ? data.data.to.id
           : data.data.from.id;
       this.changeStatusMessage({
@@ -91,10 +91,7 @@ const SocketContext = createContext<SocketContextType>({
   },
 });
 
-export const useSocket = (
-  user?: Auth0User,
-  listener?: SocketContextListener
-) => {
+export const useSocket = (user?: Person, listener?: SocketContextListener) => {
   const context = useContext(SocketContext);
 
   useEffect(() => {

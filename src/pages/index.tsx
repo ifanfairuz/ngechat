@@ -18,7 +18,7 @@ const Person = dynamic(
 );
 
 interface HomeProps {
-  user: Auth0User;
+  user: Person;
   datas: {
     chats: Chats;
     interlocutors: Persons;
@@ -41,7 +41,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
 
   const datas = await getAllChat(session.user);
   return {
-    props: { user: session.user, datas },
+    props: { user: authToPerson(session.user), datas },
   };
 };
 
@@ -216,7 +216,7 @@ export default function Home({ user, datas }: HomeProps) {
     const data: Chat = {
       id: ulid(),
       to: interlocutor,
-      from: authToPerson(user!),
+      from: user,
       text,
       date: new Date(Date.now()).toISOString(),
       status: "send",

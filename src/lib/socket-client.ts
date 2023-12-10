@@ -2,11 +2,11 @@ import { io, Socket } from "socket.io-client";
 import { authToPerson } from "./data";
 import { link } from "./link";
 
-export const client = (auth: Auth0User) => {
+export const client = (person: Person) => {
   const socket: Socket<SocketEventMap> = io({
     path: link("/api/socket"),
     query: {
-      user: JSON.stringify(authToPerson(auth)),
+      user: JSON.stringify(person),
     },
   });
 
