@@ -19,7 +19,7 @@ export const allPerson = async (q?: MangoQuery<Person>) => {
 export const setOnline = async (
   id: string,
   isOnline: boolean,
-  lastSeen?: number
+  lastSeen?: string
 ) => {
   const db = await init();
   const update: Partial<Person> = { isOnline };

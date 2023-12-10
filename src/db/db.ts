@@ -38,7 +38,7 @@ const personSchema: RxJsonSchema<Person> = {
       type: "string",
     },
     lastSeen: {
-      type: "number",
+      type: "string",
     },
     isOnline: {
       type: "boolean",
@@ -71,7 +71,7 @@ const chatSchema: RxJsonSchema<
       type: "string",
     },
     date: {
-      type: "number",
+      type: "string",
     },
     status: {
       type: "string",
