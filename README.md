@@ -145,4 +145,4 @@ NEXT_PUBLIC_AUTH0_BASE_URL="http://localhost:3000${NEXT_PUBLIC_BASE_PATH}"
 AUTH0_BASE_URL="${NEXT_PUBLIC_AUTH0_BASE_URL}"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser and start chatting.
+Open [http://localhost:3000/some/path](http://localhost:3000/some/path) with your browser and start chatting.
