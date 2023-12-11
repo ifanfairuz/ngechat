@@ -11,6 +11,7 @@ import { authToPerson, getInterlocutorIdChat } from "@/lib/data";
 import { ModalNewChat } from "@/components/ModalNewChat";
 import { link } from "@/lib/link";
 import { getAllChat } from "@/db/chats";
+import { connection } from "@/db/db";
 
 const Person = dynamic(
   () => import("@/components/Person").then(({ Person }) => Person),
@@ -39,7 +40,8 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
     };
   }
 
-  const datas = await getAllChat(session.user);
+  const db = connection();
+  const datas = await getAllChat(db, session.user).finally(() => db.end());
   return {
     props: { user: authToPerson(session.user), datas },
   };

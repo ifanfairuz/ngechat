@@ -4,6 +4,7 @@ import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import * as chats from "@/db/chats";
 import * as persons from "@/db/persons";
+import { connection } from "@/db/db";
 
 export default withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -36,48 +37,58 @@ export default withApiAuthRequired(
 );
 
 async function personAll(req: NextApiRequestWithSession, res: NextApiResponse) {
-  const users = management.users.getAll();
-  const usersdb = persons.allPerson();
+  try {
+    const db = connection();
+    let result = await persons.allPersonExcept(db, req.auth.user?.email || "");
 
-  const [{ data }, datas] = await Promise.all([users, usersdb]);
+    if (result.length == 0) {
+      let datas: Person[] = [];
+      const authed_users = await management.users.getAll();
+      for (const d of authed_users.data) {
+        if (d.email == req.auth.user?.email) continue;
+        const personDB = result.find((p) => p.id == d.email);
+        const person = {
+          id: d.email,
+          name: d.name,
+          imageUri: d.picture,
+          lastSeen:
+            personDB?.lastSeen ??
+            new Date(d.last_login.toString()).toISOString(),
+          isOnline: personDB?.isOnline ?? false,
+        } as Person;
 
-  let result: Person[] = [];
-  for (const d of data) {
-    if (d.email == req.auth.user?.email) continue;
-    const personDB = datas.find((p) => p.id == d.email);
-    const person = {
-      id: d.email,
-      name: d.name,
-      imageUri: d.picture,
-      lastSeen:
-        personDB?.lastSeen ?? new Date(d.last_login.toString()).toISOString(),
-      isOnline: personDB?.isOnline ?? false,
-    } as Person;
+        datas.push(person);
+        persons.insertIgnorePerson(db, person);
+      }
+      result = datas;
+    }
 
-    result.push(person);
-    persons.addPerson(person);
+    db.end();
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.json([]);
   }
-
-  res.json(result);
 }
 
 async function personGet(req: NextApiRequestWithSession, res: NextApiResponse) {
-  if (
-    !("id" in req.query) ||
-    !req.query["id"] ||
-    typeof req.query["id"] !== "string"
-  ) {
-    return res.status(404).json({});
-  }
-  const data = await persons.getPerson(req.query["id"] as string);
+  const { id } = req.query;
+  if (!id) return res.status(404).json({});
+  const db = connection();
+  const data = await persons.getPerson(db, id as string);
+  db.end();
   if (data) {
-    return res.json(data);
+    res.json(data);
+    return;
   }
 
   res.status(404).json({});
 }
 
 async function chatsAll(req: NextApiRequestWithSession, res: NextApiResponse) {
-  const datas = await chats.getAllChat(req.auth.user!);
+  const db = connection();
+  const datas = await chats
+    .getAllChat(db, req.auth.user!)
+    .finally(() => db.end());
   res.json(datas);
 }

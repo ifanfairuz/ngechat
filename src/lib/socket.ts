@@ -1,8 +1,8 @@
-import { RxDocument } from "rxdb";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import * as persons from "@/db/persons";
 import * as chats from "@/db/chats";
 import { link } from "./link";
+import { connection } from "@/db/db";
 
 export const createServer = async (server: SocketServer) => {
   const socket = new Server<SocketEventMap, SocketEventMap, SocketEventMap>({
@@ -16,69 +16,32 @@ export const createServer = async (server: SocketServer) => {
       typeof io.handshake.query.user == "string" &&
       io.handshake.query.user != ""
     ) {
-      const person: Person = JSON.parse(io.handshake.query.user);
-      const room = `user:${person.id}`;
-      await persons.addPerson(person);
+      const user: Person = JSON.parse(io.handshake.query.user);
+      const room = `user:${user.id}`;
       if ((await socket.in(room).fetchSockets()).length == 0) {
         io.join(room);
-        persons.setOnline(person.id, true);
+        user.isOnline = true;
         io.broadcast.emit("status-online", {
-          id: person.id,
+          id: user.id,
           isOnline: true,
         });
       }
+      const db = connection();
+      persons.upsertPerson(db, user).finally(() => db.end());
 
-      io.on("typings", (data) => {
-        const r_room = `user:${data.personid}`;
-        io.to(r_room).emit("typings", { personid: person.id });
-      });
-
-      io.on("send-message", ({ data }, callback) => {
-        callback && callback();
-        const chat: Chat = { ...data, status: "sent" };
-        chats.pushChat(chat);
-        const r_room = `user:${data.to.id}`;
-        io.to(r_room).emit("receive-message", { data: chat });
-      });
-
-      io.on("status-message", (data) => {
-        chats.changeStatus(data);
-        const r_room = `user:${data.interlocutor}`;
-        io.to(r_room).emit("status-message", {
-          ...data,
-          interlocutor: person.id,
-        });
-      });
-
-      io.on("read-all-messages", async (data) => {
-        let docs: RxDocument<ChatDB, {}>[];
-        if (data.chats == "all") {
-          docs = await chats.changeAllStatusWith(
-            data.interlocutor,
-            person.id,
-            data.status
-          );
-        } else {
-          docs = await chats.changeAllStatuses(data.chats, data.status);
-        }
-        const r_room = `user:${data.interlocutor}`;
-        docs.forEach((doc) => {
-          io.to(r_room).emit("status-message", {
-            chat: doc.id,
-            status: data.status,
-            interlocutor: person.id,
-          });
-        });
-      });
+      listenUserEvent(io, user);
 
       io.once("disconnect", async () => {
         io.leave(room);
         io.removeAllListeners();
         if ((await socket.in(room).fetchSockets()).length == 0) {
           const lastSeen = new Date(Date.now()).toISOString();
-          persons.setOnline(person.id, false, lastSeen);
+          const db = connection();
+          persons
+            .setOnline(db, user.id, false, lastSeen)
+            .finally(() => db.end());
           io.broadcast.emit("status-online", {
-            id: person.id,
+            id: user.id,
             isOnline: false,
             lastSeen,
           });
@@ -88,4 +51,58 @@ export const createServer = async (server: SocketServer) => {
   });
 
   return socket;
+};
+
+const listenUserEvent = (
+  io: Socket<SocketEventMap, SocketEventMap, SocketEventMap>,
+  user: Person
+) => {
+  io.on("typings", (data) => {
+    const r_room = `user:${data.personid}`;
+    io.to(r_room).emit("typings", { personid: user.id });
+  });
+
+  io.on("send-message", ({ data }, callback) => {
+    callback && callback();
+    const db = connection();
+    const chat: Chat = { ...data, status: "sent" };
+    chats.insertChat(db, chat).finally(() => db.end());
+    const r_room = `user:${data.to.id}`;
+    io.to(r_room).emit("receive-message", { data: chat });
+  });
+
+  io.on("status-message", (data) => {
+    const db = connection();
+    chats.changeStatus(db, data).finally(() => db.end());
+    const r_room = `user:${data.interlocutor}`;
+    io.to(r_room).emit("status-message", {
+      ...data,
+      interlocutor: user.id,
+    });
+  });
+
+  io.on("read-all-messages", async (data) => {
+    const db = connection();
+    let datas: Chat[];
+    if (data.chats == "all") {
+      datas = await chats.changeAllStatusWith(
+        db,
+        data.interlocutor,
+        user.id,
+        data.status
+      );
+    } else {
+      datas = await chats.changeAllStatuses(db, data.chats, data.status);
+    }
+    db.end();
+
+    const r_room = `user:${data.interlocutor}`;
+    datas.forEach((data) => {
+      io.to(r_room).emit("status-message", {
+        chat: data.id,
+        status: data.status,
+        interlocutor: user.id,
+      });
+    });
+  });
 };

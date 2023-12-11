@@ -3,7 +3,7 @@ export const authToPerson = (auth: Auth0User, overides?: Partial<Person>) =>
     id: auth.email || "",
     name: auth.name || "",
     imageUri: auth.picture || "",
-    lastSeen: Date.now(),
+    lastSeen: new Date().toISOString(),
     isOnline: true,
     ...overides,
   } as Person);
