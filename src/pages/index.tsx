@@ -1,5 +1,5 @@
 import { ulid } from "ulid";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/Header";
@@ -153,18 +153,14 @@ export default function Home({ user, datas }: HomeProps) {
   }) => {
     pushChat(data);
     const interlocutor = getInterlocutorIdChat(data, user);
-    setTimeout(
-      () =>
-        chatBox.current?.scrollToBottom(false, () => {
-          socket.changeStatusMessage({
-            chat: data.id,
-            interlocutor,
-            status: "read",
-          });
-          setStatusChat({ interlocutor, chat: data.id, status: "read" });
-        }),
-      100
-    );
+    chatBox.current?.scrollIfSelected(interlocutor, () => {
+      socket.changeStatusMessage({
+        chat: data.id,
+        interlocutor,
+        status: "read",
+      });
+      setStatusChat({ interlocutor, chat: data.id, status: "read" });
+    });
   };
 
   const handleStatusMessage: SocketEventMap["status-message"] = (data) => {
@@ -238,11 +234,11 @@ export default function Home({ user, datas }: HomeProps) {
     document.querySelector(".leftpanel")?.classList.remove("show");
 
   return (
-    <div className="m-auto max-w-5xl h-screen md:h-[90vh] min-h-[700px] w-full bg-white md:rounded-3xl shadow-xl overflow-hidden">
+    <div className="m-auto max-w-5xl h-screen md:h-[90vh] md:max-h-[800px] w-full bg-white md:rounded-3xl shadow-xl overflow-hidden">
       <div className="flex h-full relative">
         <div className="leftpanel absolute md:relative md:w-1/3 transition-all duration-200 ease-in-out z-20">
           <div className="backdrop" onClick={hideLeftPanel}></div>
-          <div className="flex flex-col gap-4 bg-white relative z-10 h-screen md:h-[90vh]">
+          <div className="flex flex-col gap-4 bg-white relative z-10 h-screen md:h-[90vh] md:max-h-[800px]">
             <Header onAdd={() => setModalAdd(true)} />
             <Search value={search} onChange={setSearch} />
             <div className="flex-1 relative overflow-y-auto">

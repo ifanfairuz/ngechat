@@ -15,8 +15,10 @@ export const ChatForm = forwardRef<ChatFormElement, ChatFormProps>(
     const [text, setText] = useState("");
     const row = useMemo(() => Math.min(text.split("\n").length, 4), [text]);
     const submit = () => {
-      onSubmit(text.trim());
-      setText("");
+      if (text != "") {
+        onSubmit(text.trim());
+        setText("");
+      }
     };
 
     const onChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
@@ -26,7 +28,7 @@ export const ChatForm = forwardRef<ChatFormElement, ChatFormProps>(
       if (e.code == "Enter" && !e.shiftKey) {
         e.stopPropagation();
         e.preventDefault();
-        if (text != "") submit();
+        submit();
         return;
       }
       onTyping();

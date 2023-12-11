@@ -47,9 +47,10 @@ async function personAll(req: NextApiRequestWithSession, res: NextApiResponse) {
       for (const d of authed_users.data) {
         if (d.email == req.auth.user?.email) continue;
         const personDB = result.find((p) => p.id == d.email);
+        const name = d.name.split("@").shift() as string;
         const person = {
           id: d.email,
-          name: d.name,
+          name: name.length > 0 ? name : d.name,
           imageUri: d.picture,
           lastSeen:
             personDB?.lastSeen ??

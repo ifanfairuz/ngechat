@@ -28,7 +28,7 @@ export const Bubble = memo(
             </div>
           </div>
         )}
-        <div className="px-2">
+        <div className="px-1 md:px-2">
           <div
             className={`flex items-end gap-2 px-2 ${
               diffwithnext ? "pb-2" : "pb-0.5"
@@ -40,7 +40,7 @@ export const Bubble = memo(
                 alt="avatar"
                 width={30}
                 height={30}
-                className="rounded-full"
+                className="rounded-full shadow-lg"
               />
             ) : (
               <div className="w-[30px]" />
@@ -67,7 +67,7 @@ export const Bubble = memo(
   },
   (p, n) =>
     p.chat.id == n.chat.id &&
-    p.chat.status == n.chat.status &&
+    (p.chat.status == n.chat.status || (!p.me && n.chat.status == "read")) &&
     p.prev?.id == n.prev?.id &&
     p.next?.id == n.next?.id &&
     p.me == n.me

@@ -27,12 +27,12 @@ export const PersonHeader = memo(
           <Image
             src={user.imageUri}
             alt="avatar"
-            width={55}
-            height={55}
+            width={50}
+            height={50}
             className="rounded-full mr-2 shadow-md"
           />
           <div className="flex-1 flex flex-col">
-            <p className="text-lg">{user.name.split("@").shift()}</p>
+            <p className="text-md">{user.name}</p>
             <p className="text-sm opacity-40">{typing ? "Typing..." : seen}</p>
           </div>
         </div>
@@ -40,6 +40,7 @@ export const PersonHeader = memo(
     );
   },
   (p, n) =>
+    p.user == n.user &&
     p.user.id == n.user.id &&
     p.user.lastSeen == n.user.lastSeen &&
     p.user.isOnline == n.user.isOnline &&

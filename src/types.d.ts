@@ -91,6 +91,7 @@ declare global {
   interface ChatBoxElement {
     focus: () => void;
     scrollToBottom: (force?: boolean, callback?: () => void) => void;
+    scrollIfSelected: (id: string, callback?: () => void) => void;
   }
 
   interface ChatFormProps {

@@ -16,7 +16,7 @@ export const Search = ({ value, onChange }: SearchProps) => {
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        type="search"
+        type="text"
         placeholder="Search"
         className="px-3 py-2 flex-1 outline-none bg-transparent"
       />

@@ -21,9 +21,7 @@ export const Person = memo(
           />
           <div className="flex-1 flex flex-col">
             <div className="grid grid-cols-3 items-center">
-              <p className="truncate col-span-2">
-                {user.name.split("@").shift()}
-              </p>
+              <p className="truncate col-span-2">{user.name}</p>
               <p className="text-xs opacity-40 text-right col-span-1">
                 {lastChat ? dateToAgo(lastChat.date, true) : ""}
               </p>

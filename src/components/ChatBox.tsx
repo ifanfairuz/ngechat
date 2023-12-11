@@ -1,6 +1,7 @@
 import React, {
   forwardRef,
   memo,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -11,7 +12,7 @@ import { ChatForm } from "./ChatForm";
 import { PersonHeader } from "./PersonHeader";
 import { ButtonToggleLeftPanel } from "./ButtonToggleLeftPanel";
 
-const SCROLL_MIN_DIFF = 50;
+const SCROLL_MIN_DIFF = 100;
 const isScrolledTop = (el: HTMLDivElement) =>
   el.scrollHeight - el.scrollTop - el.clientHeight >= SCROLL_MIN_DIFF;
 
@@ -20,17 +21,17 @@ export const ChatBox = memo(
     ({ chats, user, typing, onTyping, onSubmit, onReadAllMessage }, ref) => {
       const scroll = useRef<HTMLDivElement>(null);
       const form = useRef<ChatFormElement>(null);
-      let unreadid: string | null = null;
+      let unreadid = useRef<string | null>(null);
 
       const unreadmessages = useMemo(
         () =>
           chats?.filter((c) => c.from.id == user?.id && c.status != "read")
             .length ?? 0,
-        [chats, user?.id]
+        [chats, user]
       );
 
       const setUnredId = (id: string | null) => {
-        unreadid = id;
+        unreadid.current = id;
         return !!id;
       };
 
@@ -47,6 +48,19 @@ export const ChatBox = memo(
         });
       };
 
+      const scrollIfSelected = useCallback<ChatBoxElement["scrollIfSelected"]>(
+        (id, onScrolled) => {
+          if (!scroll.current) return;
+          if (user?.id == id && !isScrolledTop(scroll.current)) {
+            setTimeout(() => {
+              scrollToBottom();
+              onScrolled && onScrolled();
+            }, 100);
+          }
+        },
+        [user]
+      );
+
       useImperativeHandle(
         ref,
         () => ({
@@ -54,45 +68,54 @@ export const ChatBox = memo(
           scrollToBottom: (force, onScrolled) => {
             if (!scroll.current) return;
             if (force || !isScrolledTop(scroll.current)) {
-              scrollToBottom();
-              onScrolled && onScrolled();
+              setTimeout(() => {
+                scrollToBottom();
+                onScrolled && onScrolled();
+              }, 100);
             }
           },
+          scrollIfSelected,
         }),
-        []
+        [scrollIfSelected]
       );
 
       useEffect(() => {
         setUnredId(null);
         if (!user) return;
 
+        if (scroll.current) scroll.current.onscroll = () => {};
+
+        const unreadlabel = document.querySelector(
+          '[data-label="unread-label"]'
+        );
+        if (unreadlabel) {
+          unreadlabel.scrollIntoView({ block: "nearest" });
+        } else {
+          scrollToBottom();
+          form.current?.focus();
+          unreadmessages > 0 && onReadAllMessage && onReadAllMessage(user.id);
+        }
+
         if (scroll.current) {
+          let timeout: NodeJS.Timeout;
           scroll.current.onscroll = (e) => {
             if (isScrolledTop(scroll.current!)) {
               document
                 .querySelector("#scroll-to-bottom-box.hidden")
                 ?.classList.remove("hidden");
             } else {
+              if (timeout) clearTimeout(timeout);
               document
                 .querySelector("#scroll-to-bottom-box:not(.hidden)")
                 ?.classList.add("hidden");
-              unreadmessages > 0 &&
-                onReadAllMessage &&
-                onReadAllMessage(user.id);
+              timeout = setTimeout(() => {
+                unreadmessages > 0 &&
+                  onReadAllMessage &&
+                  onReadAllMessage(user.id);
+              }, 1000);
             }
           };
         }
-
-        const unreadlabel = document.querySelector(
-          '[data-label="unread-label"]'
-        );
-        if (unreadlabel) {
-          unreadlabel.scrollIntoView();
-        } else {
-          scrollToBottom();
-        }
-        unreadmessages > 0 && onReadAllMessage && onReadAllMessage(user.id);
-        form.current?.focus();
       }, [user]);
 
       if (!user) {
@@ -130,7 +153,9 @@ export const ChatBox = memo(
                     prev={chats[i - 1]}
                     next={chats[i + 1]}
                     firstunread={
-                      !unreadid && !me && v.status != "read"
+                      unreadid.current == v.id
+                        ? true
+                        : !unreadid.current && !me && v.status != "read"
                         ? setUnredId(v.id)
                         : false
                     }
@@ -145,7 +170,7 @@ export const ChatBox = memo(
             onSubmit={onSubmitChat}
           />
           <div
-            className="absolute right-4 bottom-28 hidden flex flex-col items-center justify-center gap-2"
+            className="absolute right-2 md:right-4 bottom-28 hidden flex flex-col items-center justify-center gap-2"
             id="scroll-to-bottom-box"
           >
             {unreadmessages > 0 && (

@@ -15,7 +15,7 @@ export default function Document() {
           href={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.png`}
         />
       </Head>
-      <body>
+      <body className="bg-slate-100">
         <Main />
         <NextScript />
       </body>
