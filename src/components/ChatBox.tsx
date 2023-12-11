@@ -89,6 +89,14 @@ export const ChatBox = memo(
           '[data-label="unread-label"]'
         );
         if (unreadlabel) {
+          if (
+            scroll.current &&
+            !isScrolledTop(scroll.current) &&
+            unreadmessages > 0 &&
+            onReadAllMessage
+          ) {
+            onReadAllMessage(user.id);
+          }
           unreadlabel.scrollIntoView({ block: "nearest" });
         } else {
           scrollToBottom();
