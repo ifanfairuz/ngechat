@@ -1,9 +1,8 @@
 import { f_variable } from "@/lib/font";
 import "@/styles/globals.css";
-import type { AppContext, AppProps } from "next/app";
-import App from "next/app";
+import type { AppProps } from "next/app";
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <main
       className={
@@ -14,12 +13,4 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       <Component {...pageProps} />
     </main>
   );
-};
-
-export const getInitialProps = async (appContext: AppContext) => {
-  const appProps = await App.getInitialProps(appContext);
-
-  return { ...appProps };
-};
-
-export default MyApp;
+}

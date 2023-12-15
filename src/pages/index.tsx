@@ -1,5 +1,5 @@
 import { ulid } from "ulid";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/Header";
