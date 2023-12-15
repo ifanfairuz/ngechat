@@ -8,7 +8,7 @@
 
   <p align="center">
     This is a Simple Chat App with <a href="https://nextjs.org">Next.js</a>. <br />
-    <a href="https://nduoseh.com/ngechat">Demo</a>
+    <a href="https://nduoseh.com/ngechat" target="_blank">Demo</a>
   </p>
 </div>
 
