@@ -107,20 +107,18 @@ AUTH0_CLIENT_SECRET='{yourClientSecret}'
 
 #### Setup Database
 
-This project using [rxdb](https://rxdb.info) with supported storage :
+This project using currently support mysql database only :
 
-- Memory storage with null configuration.
-- [MongoDB](https://www.mongodb.com).
-- [FoundationDB](https://www.foundationdb.org).
-
-#### using MongoDB
+#### using MySQL
 
 Add some configuration into env file
 
 ```env
-DB_DRIVER=mongodb
-# your connection string
-DB_CONNECTION='mongodb://127.0.0.1:27017'
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=admin
+DB_PASS=admin
+DB_NAME=next-chat
 ```
 
 ### Build and Run
