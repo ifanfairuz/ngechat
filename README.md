@@ -122,6 +122,16 @@ DB_PASS=admin
 DB_NAME=next-chat
 ```
 
+#### using MySQL
+
+Migrate database for fresh database.
+
+```bash
+yarn migrate
+# or
+bun migrate
+```
+
 ### Build and Run
 
 ```bash
